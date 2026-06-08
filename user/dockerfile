@@ -2,10 +2,10 @@ FROM node:20
 RUN mkdir /app
 WORKDIR /app
 COPY package.json .
-RUN npm install
 COPY server.js .
+RUN npm install
 ENV REDIS="true" \
-    REDIS_URL="redis://redis:6379/catalogue" \
+    REDIS_HOST="redis" \
     MONGO="true" \
-    MONGO_URL="mongodb://mongodb:27017/user"
+    MONGO_HOST="mongodb"
 CMD ["node", "server.js"]

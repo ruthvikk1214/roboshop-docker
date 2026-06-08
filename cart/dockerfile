@@ -5,7 +5,6 @@ COPY package.json .
 RUN npm install
 COPY server.js .
 ENV REDIS="true" \
-    REDIS_URL="redis://redis:6379/catalogue" \
-    CATALOGUE="true" \
-    CATALOGUE_URL="http://catalogue:8080"
+    REDIS_HOST="redis" \
+    CATALOGUE_HOST="catalogue" 
 CMD ["node", "server.js"]
