@@ -14,8 +14,8 @@ services:
     depends_on:
       - mongodb
 
-  networks: #docker network create roboshop
-    default:
-      driver: bridge
-      name: roboshop
-      external: false 
+networks: #docker network create roboshop
+  default:
+    driver: bridge
+    name: roboshop
+    external: false 
