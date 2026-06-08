@@ -1,0 +1,19 @@
+services:
+  mongodb:
+    build:
+      dockerfile: mongodb.dockerfile
+    image: mongodb:1.0 #docker build -t mongodb:1.0 -f mongodb.dockerfile .
+    container_name: mongodb #docker run -d --name mongodb --network roboshop mongodb:1.0
+  catalogue:
+    build:
+      dockerfile: catalogue.dockerfile
+    image: catalogue:1.0 #docker build -t catalogue:1.0 -f catalogue.dockerfile .
+    container_name: catalogue #docker run -d --name catalogue --network roboshop catalogue:1.0
+    depends_on:
+      - mongodb
+
+  network: #docker network create roboshop
+    default:
+      driver: bridge
+      name: roboshop
+      external: false 
