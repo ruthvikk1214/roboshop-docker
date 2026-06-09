@@ -2,8 +2,8 @@ FROM node:20
 RUN mkdir /app
 WORKDIR /app
 COPY package.json .
-RUN npm install
 COPY server.js .
+RUN npm install
 ENV MONGO="true" \
     MONG0_URL="mongodb://mongodb:27017/catalogue"
 CMD ["node", "server.js"]
