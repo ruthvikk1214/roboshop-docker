@@ -27,6 +27,9 @@ services:
     container_name: user
     depends_on:
       - redis
+  redis:
+    image: redis:7.0
+    container_name: redis
   frontend:
     build:
       context: ./frontend
@@ -57,9 +60,7 @@ services:
     #   container_name: shipping
     #   depends_on:
     #     - mysql
-    redis:
-      image: redis:7.0
-      container_name: redis
+
     # payment:
     #   build:
     #     context: ./payment
