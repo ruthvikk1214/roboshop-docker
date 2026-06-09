@@ -19,28 +19,27 @@ services:
     #     dockerfile: dockerfile
     #   image: mysql:1.0
     #   container_name: mysql
-    # user:
-    #   build:
-    #     context: ./user
-    #     dockerfile: dockerfile
-    #   image: user:1.0
-    #   container_name: user
-    #   depends_on:
-    #     - redis
-
-    # frontend:
-    #   build:
-    #     context: ./frontend
-    #     dockerfile: dockerfile
-    #   image: frontend:1.0
-    #   container_name: frontend
-    #   ports:
-    #     - "80:80"
-    #   depends_on:
-    #     - catalogue
-    #     - user
-    #     - cart
-    #     - shipping
+    user:
+      build:
+        context: ./user
+        dockerfile: dockerfile
+      image: user:1.0
+      container_name: user
+      depends_on:
+        - redis
+    frontend:
+      build:
+        context: ./frontend
+        dockerfile: dockerfile
+      image: frontend:1.0
+      container_name: frontend
+      ports:
+        - "80:80"
+      depends_on:
+        - catalogue
+        - user
+        - cart
+        - shipping
     # cart:
     #   build:
     #     context: ./cart
@@ -58,10 +57,9 @@ services:
     #   container_name: shipping
     #   depends_on:
     #     - mysql
-    # redis:
-    #   image: redis:7.0
-    #   container_name: redis
-
+    redis:
+      image: redis:7.0
+      container_name: redis
     # payment:
     #   build:
     #     context: ./payment
