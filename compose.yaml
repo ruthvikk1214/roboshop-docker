@@ -41,41 +41,41 @@ services:
     depends_on:
       - catalogue
       - user
-      - cart
-      - shipping
-    # cart:
-    #   build:
-    #     context: ./cart
-    #     dockerfile: dockerfile
-    #   image: cart:1.0
-    #   container_name: cart
-    #   depends_on:
-    #     - redis
+      # - cart
+      # - shipping
+      # cart:
+      #   build:
+      #     context: ./cart
+      #     dockerfile: dockerfile
+      #   image: cart:1.0
+      #   container_name: cart
+      #   depends_on:
+      #     - redis
 
-    # shipping:
-    #   build:
-    #     context: ./shipping
-    #     dockerfile: dockerfile
-    #   image: shipping:1.0
-    #   container_name: shipping
-    #   depends_on:
-    #     - mysql
+      # shipping:
+      #   build:
+      #     context: ./shipping
+      #     dockerfile: dockerfile
+      #   image: shipping:1.0
+      #   container_name: shipping
+      #   depends_on:
+      #     - mysql
 
-    # payment:
-    #   build:
-    #     context: ./payment
-    #     dockerfile: dockerfile
-    #   image: payment:1.0
-    #   container_name: payment
-    #   depends_on:
-    #     - cart
+      # payment:
+      #   build:
+      #     context: ./payment
+      #     dockerfile: dockerfile
+      #   image: payment:1.0
+      #   container_name: payment
+      #   depends_on:
+      #     - cart
 
-    # rabbitmq:
-    # image: rabbitmq:3
-    # environment:
-    #   - RABBITMQ_DEFAULT_USER=roboshop
-    #   - RABBITMQ_DEFAULT_PASS=roboshop123
-    # container_name: rabbitmq
+      # rabbitmq:
+      # image: rabbitmq:3
+      # environment:
+      #   - RABBITMQ_DEFAULT_USER=roboshop
+      #   - RABBITMQ_DEFAULT_PASS=roboshop123
+      # container_name: rabbitmq
 networks:
   default:
     driver: bridge
