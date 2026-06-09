@@ -20,7 +20,7 @@ services:
     image: mysql:1.0
     container_name: mysql
     environment:
-      - MYSQL_ROOT_PASSWORD: Roboshop@1
+      MYSQL_ROOT_PASSWORD: Roboshop@1
   user:
     build:
       context: ./user
