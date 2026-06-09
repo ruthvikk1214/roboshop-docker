@@ -1,0 +1,13 @@
+FROM python:3.32
+RUN mkdir /app
+WORKDIR /app
+COPY payment.ini /app/payment.ini
+COPY payment.py /app/payment.py
+COPY requirements.txt /app/requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
+ENV CART_HOST=cart \
+    CART_PORT=8080 \
+    USER_HOST=user \
+    USER_PORT=8080 \
+    AMQP_HOST=rabbitmq \
+    
