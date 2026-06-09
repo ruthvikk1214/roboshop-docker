@@ -47,6 +47,25 @@ services:
     container_name: cart
     depends_on:
       - redis
+
+  shipping:
+    build:
+      context: ./shipping
+      dockerfile: dockerfile
+    image: shipping:1.0
+    container_name: shipping
+    depends_on:
+      - cart
+    
+  payment:
+    build:
+      context: ./payment
+      dockerfile: dockerfile
+    image: payment:1.0
+    container_name: payment
+    depends_on:
+      - cart
+
 networks:
   default:
     name: roboshop
