@@ -44,6 +44,8 @@ services:
     depends_on:
       - catalogue
       - user
+      - cart
+      - shipping
   cart:
     build:
       context: ./cart
@@ -60,7 +62,7 @@ services:
     image: shipping:1.0
     container_name: shipping
     depends_on:
-      - cart
+      - mysql
 
   payment:
     build:
