@@ -39,7 +39,14 @@ services:
     depends_on:
       - catalogue
       - user
-
+  cart:
+    build:
+      context: ./cart
+      dockerfile: dockerfile
+    image: cart:1.0
+    container_name: cart
+    depends_on:
+      - redis
 networks:
   default:
     name: roboshop
