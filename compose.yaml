@@ -18,7 +18,12 @@ services:
     container_name: catalogue
     depends_on:
       - mongodb
-
+  mysql:
+    build:
+      context: ./mysql
+      dockerfile: dockerfile
+    image: mysql:1.0
+    container_name: mysql
   user:
     build:
       context: ./user
@@ -56,7 +61,7 @@ services:
     container_name: shipping
     depends_on:
       - cart
-    
+
   payment:
     build:
       context: ./payment
