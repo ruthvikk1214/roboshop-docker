@@ -11,7 +11,42 @@ services:
       dockerfile: dockerfile
     image: user:1.0
     container_name: user
-    depends_on: redis mongodb
+    depends_on: 
+    - redis
+  redis:
+    image: redis:7.0
+    container_name: 
+    - redis
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: dockerfile
+    image: frontend:1.0
+    container_name: frontend
+    depends_on: 
+      - user
+      - cart
+      - shipping
+      - catalogue
+  cart:
+    build:
+      context: ./cart
+      dockerfile: dockerfile
+    image: cart:1.0
+    container_name: cart
+    depends_on: 
+      - redis
+      - catalogue
+  shipping:
+    build:
+      context: ./shipping
+      dockerfile: dockerfile
+    image: shipping:1.0
+    container_name: shipping
+    depends_on: 
+      - cart
+  
   catalogue:
     build:
       context: ./catalogue
