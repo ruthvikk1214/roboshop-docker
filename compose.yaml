@@ -5,7 +5,13 @@ services:
       dockerfile: dockerfile
     image: mongodb:1.0
     container_name: mongodb
-
+  user:
+    build: 
+      context: ./user
+      dockerfile: dockerfile
+    image: user:1.0
+    container_name: user
+    depends_on: redis mongodb
   catalogue:
     build:
       context: ./catalogue
@@ -18,3 +24,4 @@ services:
 networks:
   default:
     name: roboshop
+
