@@ -1,78 +1,82 @@
 services:
   mongodb:
     build:
-      context: ./mongodb
       dockerfile: dockerfile
     image: mongodb:1.0
     container_name: mongodb
-
-  redis:
-    image: redis:7.0
-    container_name: redis
-
   catalogue:
     build:
-      context: ./catalogue
       dockerfile: dockerfile
     image: catalogue:1.0
     container_name: catalogue
     depends_on:
       - mongodb
-  mysql:
-    build:
-      context: ./mysql
-      dockerfile: dockerfile
-    image: mysql:1.0
-    container_name: mysql
-  user:
-    build:
-      context: ./user
-      dockerfile: dockerfile
-    image: user:1.0
-    container_name: user
-    depends_on:
-      - redis
+  # mysql:
+  #   build:
+  #     context: ./mysql
+  #     dockerfile: dockerfile
+  #   image: mysql:1.0
+  #   container_name: mysql
+  # user:
+  #   build:
+  #     context: ./user
+  #     dockerfile: dockerfile
+  #   image: user:1.0
+  #   container_name: user
+  #   depends_on:
+  #     - redis
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: dockerfile
-    image: frontend:1.0
-    container_name: frontend
-    ports:
-      - "80:80"
-    depends_on:
-      - catalogue
-      - user
-      - cart
-      - shipping
-  cart:
-    build:
-      context: ./cart
-      dockerfile: dockerfile
-    image: cart:1.0
-    container_name: cart
-    depends_on:
-      - redis
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: dockerfile
+  #   image: frontend:1.0
+  #   container_name: frontend
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - catalogue
+  #     - user
+  #     - cart
+  #     - shipping
+  # cart:
+  #   build:
+  #     context: ./cart
+  #     dockerfile: dockerfile
+  #   image: cart:1.0
+  #   container_name: cart
+  #   depends_on:
+  #     - redis
 
-  shipping:
-    build:
-      context: ./shipping
-      dockerfile: dockerfile
-    image: shipping:1.0
-    container_name: shipping
-    depends_on:
-      - mysql
+  # shipping:
+  #   build:
+  #     context: ./shipping
+  #     dockerfile: dockerfile
+  #   image: shipping:1.0
+  #   container_name: shipping
+  #   depends_on:
+  #     - mysql
+  # redis:
+  #   image: redis:7.0
+  #   container_name: redis
 
-  payment:
-    build:
-      context: ./payment
-      dockerfile: dockerfile
-    image: payment:1.0
-    container_name: payment
-    depends_on:
-      - cart
+  # payment:
+  #   build:
+  #     context: ./payment
+  #     dockerfile: dockerfile
+  #   image: payment:1.0
+  #   container_name: payment
+  #   depends_on:
+  #     - cart
 
+  # rabbitmq:
+    image: rabbitmq:3
+    environment:
+      - RABBITMQ_DEFAULT_USER=roboshop
+      - RABBITMQ_DEFAULT_PASS=roboshop123
+    container_name: rabbitmq
 networks:
   default:
+    driver: bridge
+    external: false
     name: roboshop
