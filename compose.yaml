@@ -1,11 +1,13 @@
 services:
   mongodb:
     build:
+      context: ./mongodb
       dockerfile: dockerfile
     image: mongodb:1.0
     container_name: mongodb
   catalogue:
     build:
+      context: ./catalogue
       dockerfile: dockerfile
     image: catalogue:1.0
     container_name: catalogue
