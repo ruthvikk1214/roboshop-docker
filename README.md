@@ -136,6 +136,18 @@ The `/var` filesystem should now reflect the increased size.
 ### Why is this required?
 
 Although the EC2 instance is created with a **50 GB EBS volume**, RHEL 9.x initially creates a smaller LVM partition (around 20 GB by default). The remaining space is left unallocated and must be manually extended before Docker workloads can use it.
+
+---
+
+# Container Size Optimization
+
+To ensure fast deployment and minimal resource usage, the container configurations in this repository have been optimized:
+
+* **Minimal Base Images:** Used Alpine-based Docker images (such as `node:20-alpine`) to significantly decrease the overall container image size and reduce the security vulnerability footprint compared to standard base images.
+* **Multi-Stage Builds:** Implemented multi-stage builds (e.g., in the `catalogue` service) to separate the build environment from the final execution environment. This ensures that build tools and temporary dependencies are not included in the final production images, resulting in highly lightweight containers.
+
+---
+
 # Troubleshooting & Key Learnings
 
 During the development and containerization of the RoboShop microservices application, I encountered several real-world issues. Below are the major challenges, root causes, and their resolutions.
@@ -496,8 +508,8 @@ docker compose up -d
 
 # Skills Demonstrated
 
-* Docker
-* Docker Compose
+* Docker & Docker Compose
+* Container Size Optimization (Minimal Alpine images, Multi-Stage builds)
 * Docker Networking
 * Docker Image Creation
 * Multi-Container Applications
@@ -527,3 +539,50 @@ docker compose up -d
 * Docker image cache can cause outdated configurations to persist; rebuilding with `--no-cache` resolves such issues.
 * Effective microservice debugging involves isolating each service and validating connectivity step by step.
 * A systematic troubleshooting approach significantly reduces debugging time.
+
+---
+
+# Docker Best Practices
+
+To ensure secure, lightweight, and performant container deployments, follow these Docker best practices:
+
+### 1. Use Specific and Minimal Base Images
+* **Avoid `latest`:** Always pin base image versions (e.g., `node:20-alpine` instead of `node`) to ensure build reproducibility.
+* **Use Alpine/Slim:** Use minimal distributions like `alpine` or `slim` to reduce the image size, decrease the attack surface, and speed up deployments.
+
+### 2. Leverage Build Cache (Order of Instructions)
+* Copy dependency files (e.g., `package.json`, `pom.xml`, `requirements.txt`) first and run installation commands before copying the rest of the application source code.
+* This ensures that Docker reuses cached layers for dependencies unless they explicitly change.
+
+```dockerfile
+# Good caching practice
+COPY package.json .
+RUN npm install
+COPY . .
+```
+
+### 3. Use `.dockerignore` Files
+* Exclude unnecessary files and folders (e.g., `node_modules`, `.git`, `dist`, local log files, configuration secrets) from entering the build context.
+* This keeps build times fast and prevents confidential local configuration files from leaking into the container.
+
+### 4. Run as a Non-Root User
+* By default, Docker containers run with root privileges. For production setups, define and run the container with a non-root user (e.g., the built-in `node` user in Node.js images, or create a custom system user).
+
+```dockerfile
+# Example for Node.js Alpine
+USER node
+```
+
+### 5. Utilize Multi-Stage Builds
+* For compiled or built applications (like Java or React apps), use multi-stage builds. Compile artifacts in a heavier builder container, then copy only the finalized assets/jars to a lightweight runner image.
+
+### 6. Avoid Storing Secrets or Sensitive Data in Dockerfiles
+* Do not hardcode passwords, API keys, or certificates in the `Dockerfile` or source files.
+* Inject sensitive data at runtime using environment variables (`env_file`, `environment` keys in Docker Compose) or Docker Secrets.
+
+### 7. Clean Up Package Manager Caches
+* When installing OS dependencies via `apk`, `apt`, or `dnf`, clean up package cache databases to avoid bloating the final image.
+
+```dockerfile
+RUN apk add --no-cache curl
+```
