@@ -1,13 +1,32 @@
-FROM maven:3.9.14
-EXPOSE 8080
-RUN mkdir /app
+# =========================================================================
+# STAGE 1: The Builder (The Heavy Construction Site)
+# =========================================================================
+FROM maven:3.9.14-eclipse-temurin-17-alpine AS builder
 WORKDIR /app
-COPY src ./src
+
+# Step A: Cache dependencies (saves massive amounts of build time)
 COPY pom.xml .
+RUN mvn dependency:go-offline -B
 
-RUN mvn clean package
-RUN mv target/shipping-1.0.jar shipping.jar
+# Step B: Copy source code and compile the final production JAR
+COPY src ./src
+RUN mvn clean package -DskipTests
 
+
+# =========================================================================
+# STAGE 2: The Runner (The Lean Production Delivery)
+# =========================================================================
+# We completely ditch Maven and the JDK. We start fresh with a tiny JRE.
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+
+# Step C: The magic trick. Pluck ONLY the compiled JAR from Stage 1
+COPY --from=builder /app/target/shipping-1.0.jar shipping.jar
+
+# Configure runtime details
 ENV CART_ENDPOINT=cart:8080 \
     DB_HOST=mysql
+
+EXPOSE 8080
+
 CMD ["java", "-jar", "shipping.jar"]
