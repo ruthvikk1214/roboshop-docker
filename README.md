@@ -45,6 +45,22 @@ The application consists of the following components:
 
 ## Getting Started
 
+### Install Docker
+
+If you are running on a RHEL 9 EC2 instance, you can install Docker and the required plugins using the following commands:
+
+```bash
+sudo dnf -y install dnf-plugins-core
+sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+sudo dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker ec2-user
+```
+
+> [!NOTE]
+> After running the commands, you may need to log out and log back in (or run `newgrp docker`) for the group changes to take effect so that you can run Docker commands without `sudo`.
+
 ### Using Docker Compose
 To build and start the components together:
 ```bash
