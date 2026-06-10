@@ -5,6 +5,8 @@ services:
       dockerfile: dockerfile
     image: mongodb:1.0
     container_name: mongodb
+    volumes:
+      - mongodb:/data/db
   catalogue:
     build:
       context: ./catalogue
@@ -21,6 +23,8 @@ services:
     container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: Roboshop@1
+    volumes:
+      - mysql:/var/lib/mysql
   user:
     build:
       context: ./user
@@ -32,6 +36,8 @@ services:
   redis:
     image: redis:7.0
     container_name: redis
+    volumes:
+      - redis:/data
   frontend:
     build:
       context: ./frontend
@@ -87,8 +93,15 @@ services:
       - RABBITMQ_DEFAULT_USER=roboshop
       - RABBITMQ_DEFAULT_PASS=roboshop123
     container_name: rabbitmq
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
 networks:
   default:
     driver: bridge
     external: false
     name: roboshop
+volumes:
+  mongodb:
+  redis:
+  mysql:
+  rabbitmq:

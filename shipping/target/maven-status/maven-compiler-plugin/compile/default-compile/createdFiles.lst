@@ -1,0 +1,14 @@
+com\instana\robotshop\shipping\CartHelper.class
+com\instana\robotshop\shipping\Controller.class
+com\instana\robotshop\shipping\CodeRepository.class
+com\instana\robotshop\shipping\RetryableDataSource.class
+com\instana\robotshop\shipping\ShippingServiceApplication$InstanaDatacenterTagInterceptor.class
+com\instana\robotshop\shipping\City.class
+com\instana\robotshop\shipping\JpaConfig.class
+com\instana\robotshop\shipping\Code.class
+com\instana\robotshop\shipping\Ship.class
+com\instana\robotshop\shipping\ShippingServiceApplication$DataSourcePostProcessor.class
+com\instana\robotshop\shipping\ShippingServiceApplication.class
+com\instana\robotshop\shipping\CityRepository.class
+com\instana\robotshop\shipping\Calculator.class
+com\instana\robotshop\shipping\ShippingServiceApplication$1.class
