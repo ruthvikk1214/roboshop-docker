@@ -120,3 +120,394 @@ The `/var` filesystem should now reflect the increased size.
 ### Why is this required?
 
 Although the EC2 instance is created with a **50 GB EBS volume**, RHEL 9.x initially creates a smaller LVM partition (around 20 GB by default). The remaining space is left unallocated and must be manually extended before Docker workloads can use it.
+# Troubleshooting & Key Learnings
+
+During the development and containerization of the RoboShop microservices application, I encountered several real-world issues. Below are the major challenges, root causes, and their resolutions.
+
+---
+
+## 1. Docker Build Context Issues
+
+### Problem
+
+Docker failed to locate the `Dockerfile` or application source files during image build.
+
+### Root Cause
+
+The `context` property was not specified correctly in `compose.yaml`, causing Docker to search in the project root.
+
+### Solution
+
+```yaml
+build:
+  context: ./catalogue
+  dockerfile: dockerfile
+```
+
+**Learning:** Docker can only access files within the specified build context.
+
+---
+
+## 2. COPY Instruction Failures
+
+### Problem
+
+```
+COPY requirements.txt failed
+```
+
+### Root Cause
+
+Required files were outside the Docker build context or missing.
+
+### Solution
+
+* Verified project structure.
+* Corrected the build context.
+* Ensured all required files existed before building.
+
+---
+
+## 3. Shipping Service Build Failure
+
+### Problem
+
+```
+Unable to find main class
+```
+
+### Root Cause
+
+* Incorrect Dockerfile configuration.
+* Application source wasn't copied correctly.
+
+### Solution
+
+```dockerfile
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package
+```
+
+**Learning:** Spring Boot projects require both `pom.xml` and the complete `src` directory.
+
+---
+
+## 4. MySQL Container Initialization Failure
+
+### Problem
+
+```
+Database is uninitialized and password option is not specified
+```
+
+### Root Cause
+
+The MySQL image expects the root password through Docker Compose environment variables.
+
+### Solution
+
+```yaml
+mysql:
+  environment:
+    MYSQL_ROOT_PASSWORD: Roboshop@1
+```
+
+**Learning:** Environment variables defined in `docker-compose.yml` override image configuration and are the recommended approach.
+
+---
+
+## 5. Payment Container Exiting Immediately
+
+### Problem
+
+The payment container exited with status code `0` immediately after startup.
+
+### Root Cause
+
+Missing dependencies and incorrect environment variable configuration.
+
+### Solution
+
+Configured:
+
+* RabbitMQ
+* Cart Service
+* User Service
+* Required environment variables
+
+using Docker Compose.
+
+---
+
+## 6. Frontend Could Not Reach Backend Services
+
+### Problem
+
+```
+host not found in upstream "payment"
+```
+
+### Root Cause
+
+The backend container was unavailable when Nginx started.
+
+### Solution
+
+* Fixed backend services.
+* Rebuilt the frontend image.
+* Verified Nginx reverse proxy configuration.
+
+---
+
+## 7. Redis Connectivity Issues
+
+### Problem
+
+```
+ECONNREFUSED 127.0.0.1:6379
+```
+
+### Root Cause
+
+Application attempted to connect to localhost instead of the Redis container.
+
+### Solution
+
+Configured the Redis hostname as:
+
+```
+redis
+```
+
+instead of
+
+```
+localhost
+```
+
+**Learning:** Containers communicate using Docker DNS service names.
+
+---
+
+## 8. MongoDB Connectivity
+
+### Problem
+
+Catalogue service failed health checks.
+
+### Solution
+
+Verified service connectivity using:
+
+```bash
+curl http://catalogue:8080/health
+```
+
+Expected response:
+
+```json
+{
+  "app": "OK",
+  "mongo": true
+}
+```
+
+---
+
+## 9. Docker Compose `depends_on`
+
+### Observation
+
+`depends_on` only controls startup order.
+
+It **does not wait** until a service is healthy.
+
+**Learning:** For production deployments, Docker Health Checks should be implemented.
+
+---
+
+## 10. Docker Cache Issues
+
+### Problem
+
+Even after modifying source files, containers continued using older configurations.
+
+### Solution
+
+Performed a complete rebuild:
+
+```bash
+docker compose down
+docker builder prune -af
+docker compose build --no-cache
+docker compose up -d
+```
+
+**Learning:** Docker aggressively caches image layers.
+
+---
+
+## 11. Container Debugging Commands
+
+Frequently used commands during troubleshooting:
+
+```bash
+docker ps
+docker ps -a
+docker images
+docker logs <container>
+docker compose logs <service>
+docker exec -it <container> sh
+docker inspect <container>
+```
+
+---
+
+## 12. API Verification Using curl
+
+Verified inter-service communication directly inside containers.
+
+Examples:
+
+```bash
+curl http://catalogue:8080/health
+
+curl http://catalogue:8080/products
+
+curl http://cart:8080/add/ruthvik/STAN-1/1
+```
+
+This helped isolate frontend issues from backend issues.
+
+---
+
+## 13. Browser Network Debugging
+
+Used Firefox Developer Tools to inspect:
+
+* API requests
+* HTTP status codes
+* Request headers
+* Response payloads
+
+This made it easier to identify backend routing problems.
+
+---
+
+## 14. Docker Networking
+
+Verified communication between containers using Docker DNS.
+
+Example:
+
+```
+cart  --->  http://catalogue:8080
+```
+
+instead of using IP addresses.
+
+**Learning:** Docker automatically provides service discovery using container names.
+
+---
+
+## 15. Nginx Reverse Proxy
+
+Configured Nginx as an API gateway for all backend services.
+
+Example:
+
+```nginx
+location /api/catalogue/ {
+    proxy_pass http://catalogue:8080/;
+}
+
+location /api/cart/ {
+    proxy_pass http://cart:8080/;
+}
+
+location /api/payment/ {
+    proxy_pass http://payment:8080/;
+}
+```
+
+---
+
+# Useful Debugging Workflow
+
+Whenever a service failed, I followed the same troubleshooting process:
+
+1. Check container status
+
+```bash
+docker ps -a
+```
+
+2. View logs
+
+```bash
+docker logs <container>
+```
+
+3. Verify environment variables
+
+```bash
+docker exec -it <container> env
+```
+
+4. Enter the container
+
+```bash
+docker exec -it <container> sh
+```
+
+5. Test service connectivity
+
+```bash
+curl http://service-name:port/health
+```
+
+6. Inspect browser network requests
+
+7. Rebuild images if configuration changed
+
+```bash
+docker compose build --no-cache
+docker compose up -d
+```
+
+---
+
+# Skills Demonstrated
+
+* Docker
+* Docker Compose
+* Docker Networking
+* Docker Image Creation
+* Multi-Container Applications
+* Nginx Reverse Proxy
+* Spring Boot Containerization
+* Python Containerization
+* Node.js Containerization
+* MongoDB
+* MySQL
+* Redis
+* RabbitMQ
+* Linux
+* REST API Debugging
+* Service Discovery
+* Log Analysis
+* Browser Network Debugging
+
+---
+
+# Lessons Learned
+
+* Docker build context is one of the most common causes of build failures.
+* `depends_on` controls startup order but **does not** guarantee service readiness.
+* Docker DNS enables service-to-service communication using container names.
+* Browser Developer Tools are invaluable for debugging frontend-backend interactions.
+* `docker logs`, `docker exec`, and `curl` are essential tools for troubleshooting microservices.
+* Docker image cache can cause outdated configurations to persist; rebuilding with `--no-cache` resolves such issues.
+* Effective microservice debugging involves isolating each service and validating connectivity step by step.
+* A systematic troubleshooting approach significantly reduces debugging time.
