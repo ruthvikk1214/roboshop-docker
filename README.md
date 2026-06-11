@@ -561,11 +561,31 @@ RUN npm install
 COPY . .
 ```
 
-### 3. Use `.dockerignore` Files
+### 3. Understand and Optimize Docker Layering
+* **Read-Only Image Layers:** Every instruction in a `Dockerfile` (such as `RUN`, `COPY`, `ADD`) creates a read-only layer. These layers are stacked sequentially.
+* **Layer Minimization:** Combine commands within `RUN` instructions (e.g., using `&&` and line continuations `\`) where possible. This keeps the number of layers low and prevents temporary build files from bloating the final image size (since deleting files in a subsequent layer does not reclaim space from previous layers).
+* **Thin Writable Container Layer:** When a container is started from an image, Docker adds a thin, writable "container layer" on top of the stack. All runtime changes (such as writing logs or modifying files) are saved in this layer. Deleting the container removes this writable layer, keeping the underlying image intact.
+
+**Example of Dockerfile Layering (from `user/dockerfile`):**
+
+Below is a side-by-side mapping of the instructions in the `user/dockerfile` to the resulting image layers:
+
+| Dockerfile Instruction | Resulting Layer Stack (Bottom-Up) |
+| :--- | :--- |
+| `CMD ["node", "server.js"]` | ├── **Layer 8:** CMD |
+| `ENV MONGO="true" \ ...` | ├── **Layer 7:** ENV |
+| `RUN npm install` | ├── **Layer 6:** node_modules |
+| `COPY server.js .` | ├── **Layer 5:** server.js |
+| `COPY package.json .` | ├── **Layer 4:** package.json |
+| `WORKDIR /app` | ├── **Layer 3:** WORKDIR |
+| `RUN mkdir /app` | ├── **Layer 2:** mkdir /app |
+| `FROM node:20.20.2-alpine3.23` | └── **Layer 1:** node image |
+
+### 4. Use `.dockerignore` Files
 * Exclude unnecessary files and folders (e.g., `node_modules`, `.git`, `dist`, local log files, configuration secrets) from entering the build context.
 * This keeps build times fast and prevents confidential local configuration files from leaking into the container.
 
-### 4. Run as a Non-Root User
+### 5. Run as a Non-Root User
 * By default, Docker containers run with root privileges. For production setups, define and run the container with a non-root user (e.g., the built-in `node` user in Node.js images, or create a custom system user).
 
 ```dockerfile
@@ -573,14 +593,14 @@ COPY . .
 USER node
 ```
 
-### 5. Utilize Multi-Stage Builds
+### 6. Utilize Multi-Stage Builds
 * For compiled or built applications (like Java or React apps), use multi-stage builds. Compile artifacts in a heavier builder container, then copy only the finalized assets/jars to a lightweight runner image.
 
-### 6. Avoid Storing Secrets or Sensitive Data in Dockerfiles
+### 7. Avoid Storing Secrets or Sensitive Data in Dockerfiles
 * Do not hardcode passwords, API keys, or certificates in the `Dockerfile` or source files.
 * Inject sensitive data at runtime using environment variables (`env_file`, `environment` keys in Docker Compose) or Docker Secrets.
 
-### 7. Clean Up Package Manager Caches
+### 8. Clean Up Package Manager Caches
 * When installing OS dependencies via `apk`, `apt`, or `dnf`, clean up package cache databases to avoid bloating the final image.
 
 ```dockerfile
