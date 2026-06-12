@@ -18,6 +18,7 @@ RUN npm install
 
 FROM node:20-alpine
 WORKDIR /app
+EXPOSE 8080
 COPY --from=builder /app .
 RUN addgroup -S roboshop && adduser -S roboshop -G roboshop
 USER roboshop
