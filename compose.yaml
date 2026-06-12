@@ -1,9 +1,117 @@
+# services:
+#   mongodb:
+#     build:
+#       context: ./mongodb
+#       dockerfile: dockerfile
+#     image: mongodb:1.0
+#     container_name: mongodb
+#     volumes:
+#       - mongodb:/data/db
+#   catalogue:
+#     build:
+#       context: ./catalogue
+#       dockerfile: dockerfile
+#     image: catalogue:1.0
+#     container_name: catalogue
+#     depends_on:
+#       - mongodb
+#   mysql:
+#     build:
+#       context: ./mysql
+#       dockerfile: dockerfile
+#     image: mysql:1.0
+#     container_name: mysql
+#     environment:
+#       MYSQL_ROOT_PASSWORD: Roboshop@1
+#     volumes:
+#       - mysql:/var/lib/mysql
+#   user:
+#     build:
+#       context: ./user
+#       dockerfile: dockerfile
+#     image: user:1.0
+#     container_name: user
+#     depends_on:
+#       - redis
+#   redis:
+#     image: redis:7.0
+#     container_name: redis
+#     volumes:
+#       - redis:/data
+#   frontend:
+#     build:
+#       context: ./frontend
+#       dockerfile: dockerfile
+#     image: frontend:1.0
+#     container_name: frontend
+#     ports:
+#       - "80:80"
+#     depends_on:
+#       - catalogue
+#       - user
+#       - cart
+#       - shipping
+#       - payment
+#   cart:
+#     build:
+#       context: ./cart
+#       dockerfile: dockerfile
+#     image: cart:1.0
+#     container_name: cart
+#     depends_on:
+#       - redis
+#       - catalogue
+#   shipping:
+#     build:
+#       context: ./shipping
+#       dockerfile: dockerfile
+#     image: shipping:1.0
+#     container_name: shipping
+#     depends_on:
+#       - mysql
+#   payment:
+#     build:
+#       context: ./payment
+#       dockerfile: dockerfile
+#     image: payment:1.0
+#     container_name: payment
+#     environment:
+#       CART_HOST: "cart"
+#       CART_PORT: "8080"
+#       USER_HOST: "user"
+#       USER_PORT: "8080"
+#       AMQP_HOST: "rabbitmq"
+#       AMQP_USER: "roboshop"
+#       AMQP_PASS: "roboshop123"
+#     depends_on:
+#       - cart
+#       - rabbitmq
+
+#   rabbitmq:
+#     image: rabbitmq:3
+#     environment:
+#       - RABBITMQ_DEFAULT_USER=roboshop
+#       - RABBITMQ_DEFAULT_PASS=roboshop123
+#     container_name: rabbitmq
+#     volumes:
+#       - rabbitmq:/var/lib/rabbitmq
+# networks:
+#   default:
+#     driver: bridge
+#     external: false
+#     name: roboshop
+# volumes:
+#   mongodb:
+#   redis:
+#   mysql:
+#   rabbitmq:
+
 services:
   mongodb:
     build:
       context: ./mongodb
       dockerfile: dockerfile
-    image: mongodb:1.0
+    image: ruthvikk1214/mongodb:1.0
     container_name: mongodb
     volumes:
       - mongodb:/data/db
@@ -11,7 +119,7 @@ services:
     build:
       context: ./catalogue
       dockerfile: dockerfile
-    image: catalogue:1.0
+    image: ruthvikk1214/catalogue:1.0
     container_name: catalogue
     depends_on:
       - mongodb
@@ -19,7 +127,7 @@ services:
     build:
       context: ./mysql
       dockerfile: dockerfile
-    image: mysql:1.0
+    image: ruthvikk1214/mysql:1.0
     container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: Roboshop@1
@@ -29,7 +137,7 @@ services:
     build:
       context: ./user
       dockerfile: dockerfile
-    image: user:1.0
+    image: ruthvikk1214/user:1.0
     container_name: user
     depends_on:
       - redis
@@ -42,7 +150,7 @@ services:
     build:
       context: ./frontend
       dockerfile: dockerfile
-    image: frontend:1.0
+    image: ruthvikk1214/frontend:1.0
     container_name: frontend
     ports:
       - "80:80"
@@ -56,7 +164,7 @@ services:
     build:
       context: ./cart
       dockerfile: dockerfile
-    image: cart:1.0
+    image: ruthvikk1214/cart:1.0
     container_name: cart
     depends_on:
       - redis
@@ -65,7 +173,7 @@ services:
     build:
       context: ./shipping
       dockerfile: dockerfile
-    image: shipping:1.0
+    image: ruthvikk1214/shipping:1.0
     container_name: shipping
     depends_on:
       - mysql
@@ -73,7 +181,7 @@ services:
     build:
       context: ./payment
       dockerfile: dockerfile
-    image: payment:1.0
+    image: ruthvikk1214/payment:1.0
     container_name: payment
     environment:
       CART_HOST: "cart"
