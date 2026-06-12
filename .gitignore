@@ -44,3 +44,8 @@ Thumbs.db
 # ==========================
 .env
 .env.*
+# Resume files
+resume.css
+resume.html
+resume.md
+Sanjeev_Sriram_Resume.pdf
