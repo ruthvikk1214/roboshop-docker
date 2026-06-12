@@ -1,6 +1,6 @@
 FROM almalinux:9
 
-RUN dnf install -y \
+RUN dnf install -y --allowerasing \
     curl \
     wget \
     bind-utils \
