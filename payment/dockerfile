@@ -15,6 +15,6 @@ EXPOSE 8080
 RUN apk add --no-cache pcre
 
 COPY --from=builder /install /usr/local
-COPY payment.ini *.py requirements.txt .
+COPY payment.ini *.py requirements.txt ./
 
 CMD ["uwsgi", "--ini", "payment.ini"]
